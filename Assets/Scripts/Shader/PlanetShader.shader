@@ -3,7 +3,7 @@ Shader "Custom/PlanetShader"
     Properties
     {
          _ColorTex("Colors", 2D) = "white"
-         [Enum(Earth, 0, Jupiter, 1, Saturn, 2)] _Type("Type", float) = 0
+         [Enum(Earth, 0, Jupiter, 1, Saturn, 2, Cthulu, 3)] _Type("Type", float) = 0
     }
 
     SubShader
