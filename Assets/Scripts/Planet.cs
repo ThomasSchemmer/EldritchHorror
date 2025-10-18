@@ -12,6 +12,8 @@ public class Planet : MonoBehaviour
     public bool bIsCorrupted = false;
     public string Name = string.Empty;
     public long Population = 1000000;
+    public long MaxPopulation = 1000000;
+    public float PopulationGrowthRatePercentage = 1.17f; // % per year (according to wikipedia)
     public float SacrificePercent = 1;
     public float SacrificeGainKG = 1;
 
@@ -22,7 +24,21 @@ public class Planet : MonoBehaviour
     void Update()
     {
         Rotate();
+        Procreate();
         Sacrifice();
+    }
+
+    void Procreate()
+    {
+        long populationGrowth = (long)(PopulationGrowthRatePercentage / 100.0f * Time.deltaTime * Population);
+
+        long populationCandidate = Population + populationGrowth;
+        if (populationCandidate > MaxPopulation)
+        {
+            populationCandidate = MaxPopulation;
+        }
+
+        Population = populationCandidate;
     }
 
     void Sacrifice()
