@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using UnityEngine;
 
 public class Planet : MonoBehaviour
@@ -16,14 +17,28 @@ public class Planet : MonoBehaviour
     public float PopulationGrowthRatePercentage = 1.17f; // % per year (according to wikipedia)
     public float SacrificePercent = 1;
     public float SacrificeGainKG = 1;
+    public float MinimalCorruptionAttemptsBeforeCorruption = 10;
+    public float ManualCorruptionBrainmatterCost = 200000;
+
+    public float CurrentManualCorruptionAttempts = 0;
+
+    public uint planetsNearby = 0;
+
+    public float CorruptionRadius = 10;
+
+    private Planet[] AllPlanets = null;
+
 
     void Start()
     {
+        AllPlanets = FindObjectsByType<Planet>(FindObjectsSortMode.None);
     }
 
     void Update()
     {
         Rotate();
+
+        planetsNearby = GetCorruptedNeighborhoodCount();
     }
 
     void FixedUpdate()
@@ -83,6 +98,49 @@ public class Planet : MonoBehaviour
             return 0;
 
         return Population * SacrificePercent * Time.fixedDeltaTime / 100.0f;
+    }
+
+    public bool CorruptionPossible()
+    {
+        return (GetCorruptedNeighborhoodCount() + CurrentManualCorruptionAttempts) > MinimalCorruptionAttemptsBeforeCorruption;
+    }
+    
+    public bool ManualCorruptionAttemptPossible()
+    {
+        return PlayerInfo.Instance.BrainMatterKG > ManualCorruptionBrainmatterCost;
+    }
+
+    public uint GetCorruptedNeighborhoodCount()
+    {
+        uint count = 0;
+        foreach (Planet p in AllPlanets)
+        {
+            if (!p.bIsCorrupted) continue;
+
+            if (Vector3.Distance(transform.position, p.transform.position) < CorruptionRadius)
+            {
+                count += 1;
+            }
+        }
+
+        return count;
+    }
+
+    public void AttemptCorruptionManually()
+    {
+        if (!ManualCorruptionAttemptPossible())
+        {
+            // TODO notify missing brainmatter for action
+            return;
+        }
+
+        PlayerInfo.Instance.BrainMatterKG -= ManualCorruptionBrainmatterCost;
+        CurrentManualCorruptionAttempts += 1;
+
+        if (CorruptionPossible())
+        {
+            bIsCorrupted = true;
+        }
     }
 
     private static long Clamp(long val, long min, long max)

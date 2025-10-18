@@ -16,12 +16,6 @@ public class Selector : MonoBehaviour
         if (!Mouse.current.leftButton.wasPressedThisFrame && !Mouse.current.rightButton.wasPressedThisFrame)
             return;
 
-        if (Selected)
-        {
-            Selected.DeSelect();
-            Selected = null;
-        }
-
         if (Mouse.current.leftButton.wasPressedThisFrame)
             HandleLeftButtonPress();
 
@@ -29,28 +23,41 @@ public class Selector : MonoBehaviour
             HandleRightButtonPress();
     }
 
-    Planet FilterSelectedPlanet()
+    #nullable enable
+    T? FilterByTag<T>(string tag) where T: MonoBehaviour
     {
         var Hits = Physics.RaycastAll(Cam.ScreenPointToRay(Mouse.current.position.value));
         if (Hits.Length == 0)
             return null;
 
-        Planet Target = null;
+        T? Target = null;
         for (int i = 0; i < Hits.Length; i++)
         {
-            if (!Hits[i].transform.tag.Equals("Planet"))
+            if (!Hits[i].transform.tag.Equals(tag))
                 continue;
 
-            Target = Hits[i].transform.GetComponent<Planet>();
+            Target = Hits[i].transform.GetComponent<T>();
             break;
         }
 
         return Target;
     }
 
+    Planet? FilterSelectedPlanet()
+    {
+        return FilterByTag<Planet>("Planet");
+    }
+
     void HandleLeftButtonPress()
     {
-        Planet Target = FilterSelectedPlanet();
+        Planet? Target = FilterSelectedPlanet();
+        
+        // TODO if deselection is possible, we cannot click buttons /shrug
+        // if (Selected)
+        // {
+        //     Selected.DeSelect();
+        //     Selected = null;
+        // }
 
         if (!Target)
             return;
@@ -61,6 +68,19 @@ public class Selector : MonoBehaviour
 
     void HandleRightButtonPress()
     {
-        // TODO
+        Planet? Target = FilterSelectedPlanet();
+
+        if (!Target)
+            return;
+
+        if (!Target.bIsCorrupted)
+        {
+            Target.bIsCorrupted = true;
+        }
+    }
+
+    public void ManualCorruptionAttemptOnSelected()
+    {
+        Selected.AttemptCorruptionManually();
     }
 }
