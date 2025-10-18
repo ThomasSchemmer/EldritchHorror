@@ -30,7 +30,7 @@ public class Planet : MonoBehaviour
         if (!bIsCorrupted)
             return;
 
-        float Production = GetSacrificeProduction();
+        PlayerInfo.Instance.BrainMatterKG += GetSacrificeProduction();
         Population -= (long)GetSacrificedPopulation();
     }
 
