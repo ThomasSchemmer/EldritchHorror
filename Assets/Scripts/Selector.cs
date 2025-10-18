@@ -13,7 +13,7 @@ public class Selector : MonoBehaviour
 
     void Update()
     {
-        if (!Mouse.current.leftButton.wasPressedThisFrame)
+        if (!Mouse.current.leftButton.wasPressedThisFrame && !Mouse.current.rightButton.wasPressedThisFrame)
             return;
 
         if (Selected)
@@ -22,9 +22,18 @@ public class Selector : MonoBehaviour
             Selected = null;
         }
 
+        if (Mouse.current.leftButton.wasPressedThisFrame)
+            HandleLeftButtonPress();
+
+        if (Mouse.current.rightButton.wasPressedThisFrame)
+            HandleRightButtonPress();
+    }
+
+    Planet FilterSelectedPlanet()
+    {
         var Hits = Physics.RaycastAll(Cam.ScreenPointToRay(Mouse.current.position.value));
         if (Hits.Length == 0)
-            return;
+            return null;
 
         Planet Target = null;
         for (int i = 0; i < Hits.Length; i++)
@@ -36,10 +45,22 @@ public class Selector : MonoBehaviour
             break;
         }
 
+        return Target;
+    }
+
+    void HandleLeftButtonPress()
+    {
+        Planet Target = FilterSelectedPlanet();
+
         if (!Target)
             return;
 
         Selected = Target;
         Selected.Select();
+    }
+
+    void HandleRightButtonPress()
+    {
+        // TODO
     }
 }

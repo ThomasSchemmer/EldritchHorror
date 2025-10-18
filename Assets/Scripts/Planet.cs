@@ -12,7 +12,7 @@ public class Planet : MonoBehaviour
     public bool bIsCorrupted = false;
     public string Name = string.Empty;
     public long Population = 1000000;
-    public long MaxPopulation = 1000000;
+    public long MaxPopulation = 2000000;
     public float PopulationGrowthRatePercentage = 1.17f; // % per year (according to wikipedia)
     public float SacrificePercent = 1;
     public float SacrificeGainKG = 1;
@@ -24,21 +24,19 @@ public class Planet : MonoBehaviour
     void Update()
     {
         Rotate();
+    }
+
+    void FixedUpdate()
+    {
         Procreate();
         Sacrifice();
     }
 
     void Procreate()
     {
-        long populationGrowth = (long)(PopulationGrowthRatePercentage / 100.0f * Time.deltaTime * Population);
+        long populationGrowth = (long)(PopulationGrowthRatePercentage * Time.fixedDeltaTime * Population / 100.0f);
 
-        long populationCandidate = Population + populationGrowth;
-        if (populationCandidate > MaxPopulation)
-        {
-            populationCandidate = MaxPopulation;
-        }
-
-        Population = populationCandidate;
+        Population = ClampPopulationValue(Population + populationGrowth);
     }
 
     void Sacrifice()
@@ -47,7 +45,14 @@ public class Planet : MonoBehaviour
             return;
 
         PlayerInfo.Instance.BrainMatterKG += GetSacrificeProduction();
-        Population -= (long)GetSacrificedPopulation();
+        Population -= (long)Mathf.CeilToInt(GetSacrificedPopulation());
+
+        Population = ClampPopulationValue(Population);
+    }
+
+    private long ClampPopulationValue(long val)
+    {
+        return Clamp(val, 0, MaxPopulation);
     }
 
     void Rotate()
@@ -69,7 +74,7 @@ public class Planet : MonoBehaviour
 
     public float GetSacrificeProduction()
     {
-        return GetSacrificedPopulation() * SacrificeGainKG;
+        return Mathf.CeilToInt(GetSacrificedPopulation() * SacrificeGainKG);
     }
 
     public float GetSacrificedPopulation()
@@ -77,6 +82,15 @@ public class Planet : MonoBehaviour
         if (!bIsCorrupted)
             return 0;
 
-        return Population * SacrificePercent / 100.0f * Time.deltaTime;
+        return Population * SacrificePercent * Time.fixedDeltaTime / 100.0f;
     }
+
+    private static long Clamp(long val, long min, long max)
+    {
+        if (val < min) return min;
+        if (val > max) return max;
+
+        return val;
+    }
+
 }
