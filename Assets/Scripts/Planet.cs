@@ -17,6 +17,7 @@ public class Planet : MonoBehaviour
 
     void Start()
     {
+        CreateHighlight();
     }
 
     void Update()
@@ -63,4 +64,14 @@ public class Planet : MonoBehaviour
 
         return Population * SacrificePercent / 100.0f * Time.deltaTime;
     }
+
+    private void CreateHighlight()
+    {
+        GameObject Circle = Resources.Load("HighlightCircle") as GameObject;
+        Circle.transform.localScale = transform.localScale;
+        Circle.transform.SetParent(transform, false);
+        Circle.transform.localPosition += HighlightOffset;
+    }
+
+    private static Vector3 HighlightOffset = new Vector3(0.007f, -0.004f, -0.0081f);
 }
