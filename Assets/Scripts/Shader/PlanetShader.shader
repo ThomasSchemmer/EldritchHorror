@@ -2,7 +2,8 @@ Shader "Custom/PlanetShader"
 {
     Properties
     {
-        [MainTexture] _ColorTex("Colors", 2D) = "white"
+         _ColorTex("Colors", 2D) = "white"
+         [Enum(Earth, 0, Jupiter, 1, Saturn, 2)] _Type("Type", float) = 0
     }
 
     SubShader
@@ -16,12 +17,13 @@ Shader "Custom/PlanetShader"
             #pragma vertex vert
             #pragma fragment frag
 
+            #include "Util.cginc"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
             struct Attributes
             {
-                float4 positionOS : POSITION;
+                float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
             };
@@ -31,21 +33,24 @@ Shader "Custom/PlanetShader"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
+                float3 positionWS : TEXCOORD1;
             };
 
             sampler _ColorTex;
 
             CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
+                float _Type;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
             {
                 Varyings OUT;
                 VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN.normal);
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
+                VertexPositionInputs VertexInputs = GetVertexPositionInputs(IN.vertex.xyz);
+                OUT.positionHCS = TransformObjectToHClip(IN.vertex.xyz);
                 OUT.uv = IN.uv;
                 OUT.normal = NormalInputs.normalWS;
+                OUT.positionWS = VertexInputs.positionWS;
                 return OUT;
             }
 
@@ -53,7 +58,8 @@ Shader "Custom/PlanetShader"
             {
                 Light Light = GetMainLight();
                 float L = LightingLambert(Light.color, Light.direction, IN.normal.xyz);
-                half4 color = tex2D(_ColorTex, IN.uv) * L;
+                float2 uv = IN.uv + float2(0, _Type / 16.0);
+                half4 color = tex2D(_ColorTex, uv) * L;
                 return color;
             }
             ENDHLSL
