@@ -2,6 +2,9 @@ Shader "Custom/MarsShader"
 {
     Properties
     {
+        _LightInfluence("Influence", Range(1, 5)) = 2
+        _LightColor("Light Color", Color) = (0,0,0,0)
+        _Ambient("Ambient", Float) = 0.5
         _ColorA("ColorA", Color) = (0,0,0,0)
         _ColorB("ColorB", Color) = (0,0,0,0)
         _ColorC("ColorC", Color) = (0,0,0,0)
@@ -46,9 +49,13 @@ Shader "Custom/MarsShader"
                 float2 uv : TEXCOORD0;
                 float3 normal : NORMAL;
                 float3 positionOS : TEXCOORD1;
+                float3 positionWS : TEXCOORD2;
             };
 
             CBUFFER_START(UnityPerMaterial)
+                half4 _LightColor;
+                float _Ambient;
+                float _LightInfluence;
                 half4 _ColorA;
                 half4 _ColorB;
                 half4 _ColorC;
@@ -76,10 +83,12 @@ Shader "Custom/MarsShader"
                 float3 Pos = (IN[0].vertex.xyz + IN[1].vertex.xyz + IN[2].vertex.xyz) / 3.0;
                 for (int i = 0; i < 3; i++){
                     VertexNormalInputs NormalInputs = GetVertexNormalInputs(IN[i].normal);
+                    VertexPositionInputs VertexInputs = GetVertexPositionInputs(IN[i].vertex.xyz);
                     OUT.positionHCS = TransformObjectToHClip(IN[i].vertex.xyz);
                     OUT.uv = IN[i].uv;
                     OUT.normal = NormalInputs.normalWS;
                     OUT.positionOS = Pos;
+                    OUT.positionWS = VertexInputs.positionWS;
                     triStream.Append(OUT);
                 }
                 triStream.RestartStrip();
@@ -87,9 +96,9 @@ Shader "Custom/MarsShader"
 
             half4 frag(g2f IN) : SV_Target
             {
-                Light Light = GetMainLight();
-                float L = LightingLambert(Light.color, Light.direction, IN.normal.xyz);
-
+                float3 LightPos = 0;
+                float L = dot(normalize(LightPos - IN.positionWS), IN.normal.xyz) + _Ambient;
+                
                 float NoiseA = snoise((IN.positionOS.xyz) * _LowScale);
                 float NoiseB = snoise((IN.positionOS.xyz + 5) * _HighScale);
                 NoiseA = NoiseA / 2.0 + 0.5;
@@ -98,7 +107,7 @@ Shader "Custom/MarsShader"
                 NoiseB = pow(NoiseB, _HighOverlay);
                 float4 Color = lerp(_ColorA, _ColorB, NoiseA);
                 Color = lerp(Color, _ColorC, NoiseB);
-                return Color * L;
+                return (Color * _LightInfluence + _LightColor) / (1 + _LightInfluence) * L;
             }
             ENDHLSL
         }

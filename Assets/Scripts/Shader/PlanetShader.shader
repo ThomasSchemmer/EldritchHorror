@@ -2,6 +2,9 @@ Shader "Custom/PlanetShader"
 {
     Properties
     {
+        _LightColor("Light Color", Color) = (0,0,0,0)
+        _LightInfluence("Influence", Range(1, 5)) = 2
+        _Ambient("Ambient", Float) = 0.5
          _ColorTex("Colors", 2D) = "white"
          [Enum(Earth, 0, Jupiter, 1, Saturn, 2, Cthulu, 3)] _Type("Type", float) = 0
     }
@@ -40,6 +43,9 @@ Shader "Custom/PlanetShader"
 
             CBUFFER_START(UnityPerMaterial)
                 float _Type;
+                float _LightInfluence;
+                half4 _LightColor;
+                float _Ambient;
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -56,11 +62,12 @@ Shader "Custom/PlanetShader"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                Light Light = GetMainLight();
-                float L = LightingLambert(Light.color, Light.direction, IN.normal.xyz);
+                float3 LightPos = 0;
+                float L = dot(normalize(LightPos - IN.positionWS), IN.normal.xyz) + _Ambient;
+                
                 float2 uv = IN.uv + float2(0, _Type / 16.0);
-                half4 color = tex2D(_ColorTex, uv) * L;
-                return color;
+                half4 color = tex2D(_ColorTex, uv);
+                return (color * _LightInfluence + _LightColor) / (1 + _LightInfluence) * L;
             }
             ENDHLSL
         }
