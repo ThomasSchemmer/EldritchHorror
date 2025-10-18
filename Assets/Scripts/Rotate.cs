@@ -1,21 +1,33 @@
 using UnityEngine;
 
-public class RotateClouds : MonoBehaviour
+public class Rotate : MonoBehaviour
 {
 
     public float Speed = 1;
-    public Vector3 AxisVector = new Vector3(0, 1, 0); 
+    public float Scale = 5;
+    public Transform target;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    public float Angle = 0;
+
     void Start()
     {
-        
+        // if there is a parent, use it's localPosition as axis for rotation
+        // if (this.transform.parent != null)
+        // {
+        //     this.AxisVector = this.transform.parent.localPosition;
+        // }
+
+        // var parentRotation = this.Speed = this.transform.parent.GetComponent<Rotate>();
+        // if (parentRotation)
+        // {
+        //     this.Speed = parentRotation.Speed * RelativeRotationSpeed;
+        // }
     }
 
-    // Update is called once per frame
     void Update()
     {
-
-        transform.Rotate(AxisVector, Speed * Time.deltaTime);
+        Angle += Time.deltaTime * Speed % 360;
+        var position = new Vector3(Mathf.Cos(Angle), 0, Mathf.Sin(Angle)) * Scale;
+        this.transform.localPosition = position + target.position;
     }
 }
