@@ -34,6 +34,7 @@ public class PlanetInfoPanel : MonoBehaviour
         bool bIsCorrupted = Target.IsCorrupted();
         CorruptingContainer.gameObject.SetActive(!bIsCorrupted);
         CorruptedContainer.gameObject.SetActive(bIsCorrupted);
+        SacrificeRateSlider.gameObject.SetActive(bIsCorrupted);
     }
 
     public void Hide()
@@ -43,6 +44,7 @@ public class PlanetInfoPanel : MonoBehaviour
         BuildingContainer.gameObject.SetActive(false);
         CorruptingContainer.gameObject.SetActive(false);
         CorruptedContainer.gameObject.SetActive(false);
+        SacrificeRateSlider.gameObject.SetActive(false);
     }
 
     private void Update()
