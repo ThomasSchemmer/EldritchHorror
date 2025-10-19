@@ -38,12 +38,18 @@ public class PlanetInfoPanel : MonoBehaviour
         CorruptingContainer.gameObject.SetActive(!bIsCorrupted);
         CorruptedContainer.gameObject.SetActive(bIsCorrupted);
         SacrificeRateSlider.gameObject.SetActive(bIsCorrupted);
-        BuildingContainer.gameObject.SetActive(bIsCorrupted);
 
-        HumanCattleBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > HumanCattleFarmBuilding.BasePrice());
-        KowloonCityBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > KowloonCity.BasePrice());
-        TentacleMouthBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > TentacleMouth.BasePrice());
+        var canAffordCattleFarm = PlayerInfo.Instance.BrainMatterKG > HumanCattleFarmBuilding.BasePrice();
+        var canAffordKowloon = PlayerInfo.Instance.BrainMatterKG > KowloonCity.BasePrice();
+        var canAffordTentacle = PlayerInfo.Instance.BrainMatterKG > TentacleMouth.BasePrice();
 
+        HumanCattleBtn.gameObject.SetActive(canAffordCattleFarm);
+        KowloonCityBtn.gameObject.SetActive(canAffordKowloon);
+        TentacleMouthBtn.gameObject.SetActive(canAffordTentacle);
+
+        var canAffordAtLeastOne = canAffordCattleFarm || canAffordKowloon || canAffordTentacle;
+
+        BuildingContainer.gameObject.SetActive(bIsCorrupted && canAffordAtLeastOne);
     }
 
     public void Hide()
@@ -62,8 +68,8 @@ public class PlanetInfoPanel : MonoBehaviour
             return;
 
         Name.text = Target.Name;
-        Population.text = PopulationText + Target.Population;
-        Sacrifice.text = SacrificeText + Target.GetSacrificedPercent();
+        Population.text = $"{PopulationText} (x{Target.PopulationGrowthRatePercentage}): \n {Target.Population}";
+        Sacrifice.text = $"{SacrificeText} (x{Target.SacrificeGainKG}): \n {Target.GetSacrificedPercent()}";
         Production.text = ProductionText + Target.GetSacrificeProduction();
 
         int CorruptionProgress = (int)Target.CorruptionProgress;
@@ -82,7 +88,7 @@ public class PlanetInfoPanel : MonoBehaviour
         Hide();
     }
 
-    private const string PopulationText = "Population:\n";
-    private const string SacrificeText = "Sacrifice Rate:\n";
+    private const string PopulationText = "Population";
+    private const string SacrificeText = "Sacrifice Rate";
     private const string ProductionText = "Brainmatter Production:\n";
 }
