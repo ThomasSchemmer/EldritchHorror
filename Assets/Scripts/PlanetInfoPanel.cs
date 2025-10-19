@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class PlanetInfoPanel : MonoBehaviour
 {
-    public Transform Container;
+    public Transform Container, BuildingContainer;
     public Transform CorruptingContainer, CorruptedContainer;
     public TMPro.TextMeshProUGUI Name;
     public TMPro.TextMeshProUGUI Population;
@@ -11,6 +11,7 @@ public class PlanetInfoPanel : MonoBehaviour
     public TMPro.TextMeshProUGUI Production;
     public TMPro.TextMeshProUGUI CurrentCorruption;
     public TMPro.TextMeshProUGUI MaxCorruption;
+    public Slider SacrificeRateSlider;
     public Slider CorruptionSlider;
 
     public static PlanetInfoPanel Instance;
@@ -21,6 +22,7 @@ public class PlanetInfoPanel : MonoBehaviour
     {
         Target = P;
         Container.gameObject.SetActive(true);
+        BuildingContainer.gameObject.SetActive(true);
         ShowCorruptionPanel();
     }
 
@@ -38,6 +40,7 @@ public class PlanetInfoPanel : MonoBehaviour
     {
         Target = null;
         Container.gameObject.SetActive(false);
+        BuildingContainer.gameObject.SetActive(false);
         CorruptingContainer.gameObject.SetActive(false);
         CorruptedContainer.gameObject.SetActive(false);
     }

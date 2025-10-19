@@ -110,6 +110,9 @@ public class Selector : MonoBehaviour
 
         Selected = Target;
         Selected.Select();
+
+        PlanetInfoPanel.Instance.SacrificeRateSlider.value = Selected.SacrificePercent;
+
     }
 
     void HandleRightButtonPress(Planet Target)
@@ -122,12 +125,17 @@ public class Selector : MonoBehaviour
             Target.CorruptionProgress = Target.CorruptionMaximum;
         }
     }
-    
+
     public void CorruptSelectedPlanet()
     {
         if (!Selected)
             return;
 
         Selected.AttemptCorruptionManually();
+    }
+    
+    public void OnChangeSacrificeRate()
+    {
+        Selected.SacrificePercent = PlanetInfoPanel.Instance.SacrificeRateSlider.value;
     }
 }
