@@ -203,6 +203,11 @@ public class Planet : MonoBehaviour
         HighlightRenderer.material.SetInt("_IsHovered", bIsHovered ? 1 : 0);
     }
 
+    public void ApplyEffect(PlanetEffect effect)
+    {
+        effect.apply(this);
+    }
+
     private static Vector3 HighlightOffset = new Vector3(0.007f, -0.004f, -0.0081f);
 
 }

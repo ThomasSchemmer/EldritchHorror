@@ -14,6 +14,10 @@ public class PlanetInfoPanel : MonoBehaviour
     public Slider SacrificeRateSlider;
     public Slider CorruptionSlider;
 
+    public Button HumanCattleBtn;
+    public Button KowloonCityBtn;
+    public Button TentacleMouthBtn;
+
     public static PlanetInfoPanel Instance;
 
     private Planet Target;
@@ -22,7 +26,6 @@ public class PlanetInfoPanel : MonoBehaviour
     {
         Target = P;
         Container.gameObject.SetActive(true);
-        BuildingContainer.gameObject.SetActive(true);
         ShowCorruptionPanel();
     }
 
@@ -35,6 +38,12 @@ public class PlanetInfoPanel : MonoBehaviour
         CorruptingContainer.gameObject.SetActive(!bIsCorrupted);
         CorruptedContainer.gameObject.SetActive(bIsCorrupted);
         SacrificeRateSlider.gameObject.SetActive(bIsCorrupted);
+        BuildingContainer.gameObject.SetActive(bIsCorrupted);
+
+        HumanCattleBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > HumanCattleFarmBuilding.BasePrice());
+        KowloonCityBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > KowloonCity.BasePrice());
+        TentacleMouthBtn.gameObject.SetActive(PlayerInfo.Instance.BrainMatterKG > TentacleMouth.BasePrice());
+
     }
 
     public void Hide()

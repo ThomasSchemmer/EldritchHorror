@@ -133,9 +133,36 @@ public class Selector : MonoBehaviour
 
         Selected.AttemptCorruptionManually();
     }
-    
+
     public void OnChangeSacrificeRate()
     {
         Selected.SacrificePercent = PlanetInfoPanel.Instance.SacrificeRateSlider.value;
+    }
+
+    public void AddHumanCattleFarmToSelected()
+    {
+        ApplyEffectToSelected(new HumanCattleFarmBuilding());
+    }
+
+    public void AddKowloonCityToSelected()
+    {
+        ApplyEffectToSelected(new KowloonCity());
+    }
+
+    public void AddTentacleMouthToSelected()
+    {
+        ApplyEffectToSelected(new TentacleMouth());
+    }
+    
+    public void ApplyEffectToSelected(PlanetEffect effect)
+    {
+        if (!Selected)
+            return;
+
+        if (PlayerInfo.Instance.BrainMatterKG < effect.GetPrice())
+            return;
+
+        PlayerInfo.Instance.BrainMatterKG -= effect.GetPrice();
+        Selected.ApplyEffect(effect);
     }
 }
